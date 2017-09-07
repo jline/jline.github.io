@@ -2,7 +2,7 @@
 title: JLine
 layout: default
 ---
-# Jline
+# JLine
 
 ## Introduction
 
