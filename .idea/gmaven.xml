@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MavenSettings">
+    <option name="linkedExternalProjectsSettings">
+      <MavenProjectSettings>
+        <option name="distributionSettings">
+          <DistributionSettings>
+            <option name="type" value="MVN" />
+            <path value="$USER_HOME$/.sdkman/candidates/maven/current" />
+          </DistributionSettings>
+        </option>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+          </set>
+        </option>
+      </MavenProjectSettings>
+    </option>
+  </component>
+</project>

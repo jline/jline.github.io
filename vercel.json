@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd jline-docs && npm run build",
+  "outputDirectory": "jline-docs/build",
+  "installCommand": "cd jline-docs && npm install"
+}
