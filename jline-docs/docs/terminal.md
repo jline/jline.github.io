@@ -239,26 +239,109 @@ public class CursorManipulationExample {
 
 ### Screen Clearing
 
+JLine provides a more portable way to clear the screen using terminal capabilities:
+
 ```java title="ScreenClearingExample.java"
 import org.jline.terminal.Terminal;
-
-import java.io.PrintWriter;
+import org.jline.utils.InfoCmp.Capability;
 
 public class ScreenClearingExample {
     public void clearScreen(Terminal terminal) {
-        PrintWriter writer = terminal.writer();
+        // highlight-start
+        // Clear screen using terminal capabilities
+        terminal.puts(Capability.clear_screen);
+        // highlight-end
 
-        // Clear screen
-        writer.write("\u001B[2J");
-        writer.flush();
+        // Clear line using terminal capabilities
+        terminal.puts(Capability.clr_eol);
 
-        // Clear line
-        writer.write("\u001B[K");
-        writer.flush();
+        // Move cursor to home position
+        terminal.puts(Capability.cursor_home);
 
-        writer.println("Screen and line cleared");
+        terminal.writer().println("Screen and line cleared");
+        terminal.flush();
     }
 }
+```
+
+This approach is preferred over using raw ANSI escape sequences because:
+
+1. It's more portable across different terminal types
+2. It automatically adapts to the terminal's capabilities
+3. It works even on terminals that don't support ANSI sequences
+
+### Mouse Support
+
+JLine supports mouse events in terminals that provide mouse capabilities:
+
+```java title="MouseSupportExample.java" showLineNumbers
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.terminal.MouseEvent;
+import org.jline.terminal.MouseEvent.Type;
+import org.jline.utils.InfoCmp.Capability;
+
+import java.io.IOException;
+import java.util.function.Consumer;
+
+public class MouseSupportExample {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Terminal terminal = TerminalBuilder.builder().build();
+
+        try {
+            // Clear screen
+            terminal.puts(Capability.clear_screen);
+            terminal.flush();
+
+            // highlight-start
+            // Enable mouse tracking
+            terminal.trackMouse(Terminal.MouseTracking.Normal);
+            // highlight-end
+
+            terminal.writer().println("Mouse tracking enabled. Click anywhere or press q to quit.");
+            terminal.writer().println();
+            terminal.flush();
+
+            // Set up mouse event handler
+            Consumer<MouseEvent> mouseHandler = event -> {
+                terminal.writer().println(String.format("Mouse event: type=%s, button=%s, x=%d, y=%d",
+                        event.getType(), event.getButton(), event.getX(), event.getY()));
+                terminal.flush();
+            };
+
+            // Register the mouse handler
+            terminal.handle(Terminal.Signal.MOUSE, signal -> {
+                MouseEvent event = terminal.readMouseEvent();
+                mouseHandler.accept(event);
+            });
+
+            // Wait for 'q' key to exit
+            while (true) {
+                int c = terminal.reader().read(1000);
+                if (c == 'q' || c == 'Q') {
+                    break;
+                }
+            }
+        } finally {
+            // Disable mouse tracking before exiting
+            terminal.trackMouse(Terminal.MouseTracking.Off);
+            terminal.close();
+        }
+    }
+}
+```
+
+Mouse tracking modes:
+
+- `Terminal.MouseTracking.Off`: Disables mouse tracking
+- `Terminal.MouseTracking.Normal`: Reports button press and release events
+- `Terminal.MouseTracking.Button`: Reports button press, release, and motion events while buttons are pressed
+- `Terminal.MouseTracking.Any`: Reports all mouse events, including motion events
+
+Not all terminals support mouse tracking. You can check if mouse tracking is supported:
+
+```java
+boolean supportsMouseTracking = terminal.getStringCapability(Capability.key_mouse) != null;
 ```
 
 ## Platform Compatibility

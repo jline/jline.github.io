@@ -25,6 +25,8 @@ const sidebars: SidebarsConfig = {
       items: [
         'advanced/syntax-highlighting',
         'advanced/interactive-features',
+        'advanced/non-blocking-input',
+        'advanced/terminal-attributes',
         // These will be created later
         // 'advanced/key-bindings',
         // 'advanced/widgets',
