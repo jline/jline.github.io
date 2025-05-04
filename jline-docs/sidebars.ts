@@ -19,6 +19,7 @@ const sidebars: SidebarsConfig = {
     'line-reader',
     'tab-completion',
     'history',
+    'troubleshooting',
     {
       type: 'category',
       label: 'Advanced Features',
@@ -27,10 +28,13 @@ const sidebars: SidebarsConfig = {
         'advanced/interactive-features',
         'advanced/non-blocking-input',
         'advanced/terminal-attributes',
-        // These will be created later
-        // 'advanced/key-bindings',
-        // 'advanced/widgets',
-        // 'advanced/custom-terminals'
+        'advanced/attributed-strings',
+        'advanced/key-bindings',
+        'advanced/widgets',
+        'advanced/mouse-support',
+        'advanced/terminal-size',
+        'advanced/screen-clearing',
+        'advanced/library-integration',
       ],
     },
     {
