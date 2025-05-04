@@ -46,7 +46,7 @@ implementation 'org.jline:jline:3.25.0'
 
 Here's a simple example to get you started with JLine:
 
-```java
+```java title="JLineExample.java" showLineNumbers
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -57,6 +57,7 @@ import java.io.IOException;
 public class JLineExample {
     public static void main(String[] args) {
         try {
+            // highlight-start
             // Setup the terminal
             Terminal terminal = TerminalBuilder.builder()
                     .system(true)
@@ -66,6 +67,7 @@ public class JLineExample {
             LineReader lineReader = LineReaderBuilder.builder()
                     .terminal(terminal)
                     .build();
+            // highlight-end
 
             // Read a line
             String line = lineReader.readLine("JLine > ");

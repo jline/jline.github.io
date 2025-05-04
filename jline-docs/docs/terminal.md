@@ -10,107 +10,170 @@ JLine provides a powerful abstraction for terminal handling through its `Termina
 
 The `TerminalBuilder` class provides a fluent API for creating terminal instances:
 
-```java
+```java title="TerminalCreationExample.java"
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
-// Create a system terminal (auto-detected)
-Terminal terminal = TerminalBuilder.builder()
-        .system(true)
-        .build();
+public class TerminalCreationExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-next-line
+        // Create a system terminal (auto-detected)
+        Terminal terminal = TerminalBuilder.builder()
+                .system(true)
+                .build();
 
-// Create a dumb terminal (minimal functionality)
-Terminal dumbTerminal = TerminalBuilder.builder()
-        .dumb(true)
-        .build();
+        // Create a dumb terminal (minimal functionality)
+        Terminal dumbTerminal = TerminalBuilder.builder()
+                .dumb(true)
+                .build();
 
-// Create a terminal with specific settings
-Terminal customTerminal = TerminalBuilder.builder()
-        .name("CustomTerminal")
-        .system(false)
-        .streams(System.in, System.out)
-        .encoding(Charset.forName("UTF-8"))
-        .jansi(true)
-        .build();
+        // Create a terminal with specific settings
+        Terminal customTerminal = TerminalBuilder.builder()
+                .name("CustomTerminal")
+                .system(false)
+                .streams(System.in, System.out)
+                .encoding(Charset.forName("UTF-8"))
+                .jansi(true)
+                .build();
+    }
+}
 ```
 
 ## Terminal Capabilities
 
 Once you have a terminal instance, you can query its capabilities:
 
-```java
-// Check if the terminal supports ANSI
-boolean supportsAnsi = terminal.getType().contains("ansi");
+```java title="TerminalCapabilitiesExample.java"
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
 
-// Get terminal size
-Size size = terminal.getSize();
-int width = size.getColumns();
-int height = size.getRows();
+public class TerminalCapabilitiesExample {
+    public void checkCapabilities(Terminal terminal) {
+        // Check if the terminal supports ANSI
+        boolean supportsAnsi = terminal.getType().contains("ansi");
 
-// Check if the terminal is interactive
-boolean interactive = terminal.isInteractive();
+        // highlight-start
+        // Get terminal size
+        Size size = terminal.getSize();
+        int width = size.getColumns();
+        int height = size.getRows();
+        // highlight-end
+
+        // Check if the terminal is interactive
+        boolean interactive = terminal.isInteractive();
+
+        System.out.printf("Terminal: %s, Size: %dx%d, Interactive: %b%n",
+                terminal.getType(), width, height, interactive);
+    }
+}
 ```
 
 ## Terminal Output
 
 You can write directly to the terminal:
 
-```java
-// Get the terminal writer
-PrintWriter writer = terminal.writer();
+```java title="TerminalOutputExample.java"
+import org.jline.terminal.Terminal;
 
-// Write text
-writer.println("Hello, JLine!");
-writer.flush();
+import java.io.PrintWriter;
 
-// Use ANSI escape sequences for formatting (if supported)
-writer.println("\u001B[1;31mThis text is bold and red\u001B[0m");
-writer.flush();
+public class TerminalOutputExample {
+    public void writeOutput(Terminal terminal) {
+        // Get the terminal writer
+        PrintWriter writer = terminal.writer();
+
+        // Write text
+        writer.println("Hello, JLine!");
+        writer.flush();
+
+        // highlight-start
+        // Use ANSI escape sequences for formatting (if supported)
+        writer.println("\u001B[1;31mThis text is bold and red\u001B[0m");
+        writer.flush();
+        // highlight-end
+    }
+}
 ```
 
 ## Terminal Input
 
 For direct terminal input (without using LineReader):
 
-```java
-// Get the terminal reader
-NonBlockingReader reader = terminal.reader();
+```java title="TerminalInputExample.java" showLineNumbers
+import org.jline.terminal.Terminal;
+import org.jline.utils.NonBlockingReader;
 
-// Read a character (blocking)
-int c = reader.read();
+import java.io.IOException;
 
-// Check if input is available
-boolean hasInput = reader.available() > 0;
+public class TerminalInputExample {
+    public void readInput(Terminal terminal) throws IOException {
+        // Get the terminal reader
+        NonBlockingReader reader = terminal.reader();
 
-// Read with timeout
-int c = reader.read(100); // Wait up to 100ms
+        // Read a character (blocking)
+        int c = reader.read();
+        System.out.println("Read character: " + (char)c);
+
+        // Check if input is available
+        boolean hasInput = reader.available() > 0;
+
+        // Read with timeout
+        int c2 = reader.read(100); // Wait up to 100ms
+        if (c2 != -1) {
+            System.out.println("Read character with timeout: " + (char)c2);
+        }
+    }
+}
 ```
 
 ## Terminal Signals
 
 JLine can handle terminal signals:
 
-```java
-terminal.handle(Signal.INT, signal -> {
-    // Handle Ctrl+C
-    System.out.println("Received SIGINT");
-});
+```java title="TerminalSignalsExample.java"
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
 
-terminal.handle(Signal.WINCH, signal -> {
-    // Handle terminal resize
-    Size size = terminal.getSize();
-    System.out.println("Terminal resized to " + size.getColumns() + "x" + size.getRows());
-});
+public class TerminalSignalsExample {
+    public void setupSignalHandlers(Terminal terminal) {
+        // highlight-start
+        terminal.handle(Signal.INT, signal -> {
+            // Handle Ctrl+C
+            System.out.println("Received SIGINT");
+        });
+        // highlight-end
+
+        terminal.handle(Signal.WINCH, signal -> {
+            // Handle terminal resize
+            Size size = terminal.getSize();
+            System.out.println("Terminal resized to " + size.getColumns() + "x" + size.getRows());
+        });
+    }
+}
 ```
 
 ## Closing the Terminal
 
 Always close the terminal when you're done with it:
 
-```java
-terminal.close();
+```java title="TerminalCloseExample.java"
+import org.jline.terminal.Terminal;
+
+public class TerminalCloseExample {
+    public void closeTerminal(Terminal terminal) {
+        try {
+            // Always close the terminal when done
+            terminal.close();
+            System.out.println("Terminal closed successfully");
+        } catch (Exception e) {
+            System.err.println("Error closing terminal: " + e.getMessage());
+        }
+    }
+}
 ```
 
 ## Advanced Terminal Features
@@ -119,35 +182,83 @@ JLine's terminal handling includes several advanced features:
 
 ### Raw Mode
 
-```java
-// Enter raw mode (disable echo, line buffering, etc.)
-terminal.enterRawMode();
+```java title="RawModeExample.java"
+import org.jline.terminal.Terminal;
 
-// Exit raw mode
-terminal.setAttributes(terminal.getAttributes().copy());
+import java.io.IOException;
+
+public class RawModeExample {
+    public void demonstrateRawMode(Terminal terminal) throws IOException {
+        try {
+            // highlight-next-line
+            // Enter raw mode (disable echo, line buffering, etc.)
+            terminal.enterRawMode();
+
+            System.out.println("Terminal is now in raw mode");
+            // Do some raw mode operations...
+
+            // Exit raw mode
+            terminal.setAttributes(terminal.getAttributes().copy());
+            System.out.println("Terminal is back to normal mode");
+        } catch (Exception e) {
+            System.err.println("Error with raw mode: " + e.getMessage());
+        }
+    }
+}
 ```
 
 ### Cursor Manipulation
 
-```java
-// Get cursor position
-CursorPosition position = terminal.getCursorPosition(null);
+```java title="CursorManipulationExample.java"
+import org.jline.terminal.Cursor;
+import org.jline.terminal.Terminal;
 
-// Move cursor
-writer.write("\u001B[5;10H"); // Move to row 5, column 10
-writer.flush();
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class CursorManipulationExample {
+    public void manipulateCursor(Terminal terminal) throws IOException {
+        // Get cursor position
+        Cursor position = terminal.getCursorPosition(null);
+        if (position != null) {
+            System.out.printf("Current cursor position: %d,%d%n",
+                    position.getX(), position.getY());
+        }
+
+        // Get the terminal writer
+        PrintWriter writer = terminal.writer();
+
+        // highlight-start
+        // Move cursor to row 5, column 10
+        writer.write("\u001B[5;10H");
+        writer.flush();
+        // highlight-end
+    }
+}
 ```
 
 ### Screen Clearing
 
-```java
-// Clear screen
-writer.write("\u001B[2J");
-writer.flush();
+```java title="ScreenClearingExample.java"
+import org.jline.terminal.Terminal;
 
-// Clear line
-writer.write("\u001B[K");
-writer.flush();
+import java.io.PrintWriter;
+
+public class ScreenClearingExample {
+    public void clearScreen(Terminal terminal) {
+        PrintWriter writer = terminal.writer();
+
+        // Clear screen
+        writer.write("\u001B[2J");
+        writer.flush();
+
+        // Clear line
+        writer.write("\u001B[K");
+        writer.flush();
+
+        writer.println("Screen and line cleared");
+    }
+}
 ```
 
 ## Platform Compatibility
