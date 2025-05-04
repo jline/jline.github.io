@@ -40,6 +40,7 @@ const sidebars: SidebarsConfig = {
         'modules/style',
         'modules/console',
         'modules/console-ui',
+        'modules/terminal-providers',
       ],
     },
     {
