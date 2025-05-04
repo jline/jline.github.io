@@ -33,6 +33,17 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: 'category',
+      label: 'Modules',
+      items: [
+        'modules/overview',
+        'modules/builtins',
+        'modules/style',
+        'modules/console',
+        'modules/console-ui',
+      ],
+    },
+    {
+      type: 'category',
       label: 'API Reference',
       items: [
         'api/overview',
