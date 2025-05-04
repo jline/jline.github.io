@@ -118,6 +118,21 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
+      additionalLanguages: ['java', 'bash', 'diff', 'json', 'xml'],
+      defaultLanguage: 'java',
+      magicComments: [
+        // Remember to extend the default highlight class name as well!
+        {
+          className: 'theme-code-block-highlighted-line',
+          line: 'highlight-next-line',
+          block: {start: 'highlight-start', end: 'highlight-end'},
+        },
+        {
+          className: 'code-block-error-line',
+          line: 'error-next-line',
+          block: {start: 'error-start', end: 'error-end'},
+        },
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };

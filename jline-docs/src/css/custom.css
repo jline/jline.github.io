@@ -28,3 +28,61 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+/* Enhanced code block styling */
+.theme-code-block {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.theme-code-block pre {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 1rem;
+}
+
+/* Line highlighting */
+.theme-code-block-highlighted-line {
+  background-color: rgba(46, 133, 85, 0.15);
+  display: block;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+  border-left: 3px solid var(--ifm-color-primary);
+}
+
+[data-theme='dark'] .theme-code-block-highlighted-line {
+  background-color: rgba(37, 194, 160, 0.15);
+}
+
+/* Error line highlighting */
+.code-block-error-line {
+  background-color: rgba(255, 76, 76, 0.15);
+  display: block;
+  margin: 0 -1rem;
+  padding: 0 1rem;
+  border-left: 3px solid #ff4c4c;
+}
+
+/* Improve code block titles */
+.theme-code-block-highlighted-title {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+/* Improve inline code */
+code {
+  background-color: rgba(46, 133, 85, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', 'Source Code Pro', monospace;
+}
+
+[data-theme='dark'] code {
+  background-color: rgba(37, 194, 160, 0.1);
+}

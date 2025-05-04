@@ -14,7 +14,7 @@ One of JLine's most powerful features is the ability to print text above the cur
 
 The simplest way to print above the current line is to use the `printAbove` method of the `LineReader` class:
 
-```java
+```java title="PrintAboveExample.java"
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -26,19 +26,20 @@ public class PrintAboveExample {
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .build();
-        
+
         // Start a background thread to print messages
         new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(1000);
+                    // highlight-next-line
                     reader.printAbove("Notification #" + i);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
-        
+
         // Read input normally
         while (true) {
             String line = reader.readLine("prompt> ");
@@ -54,7 +55,7 @@ In this example, notifications will appear above the input line, and the user ca
 
 For more control, you can use the `PrintAboveWriter` class:
 
-```java
+```java title="PrintAboveWriterExample.java"
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -72,24 +73,26 @@ public class PrintAboveWriterExample {
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .build();
-        
+
+        // highlight-start
         // Create a PrintAboveWriter
-        PrintWriter writer = new PrintAboveWriter(reader.getTerminal(), 
+        PrintWriter writer = new PrintAboveWriter(reader.getTerminal(),
                                                  reader::printAbove);
-        
+        // highlight-end
+
         // Start a background thread to print messages
         new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(1000);
-                    
+
                     // Create a styled message
                     AttributedStringBuilder asb = new AttributedStringBuilder();
                     asb.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
                        .append("Notification #")
                        .append(String.valueOf(i))
                        .style(AttributedStyle.DEFAULT);
-                    
+
                     // Print the message above the current line
                     writer.println(asb.toAnsi(terminal));
                     writer.flush();
@@ -98,7 +101,7 @@ public class PrintAboveWriterExample {
                 e.printStackTrace();
             }
         }).start();
-        
+
         // Read input normally
         while (true) {
             String line = reader.readLine("prompt> ");
@@ -126,7 +129,7 @@ JLine's Status feature allows you to display persistent status information at th
 
 ### Basic Status Usage
 
-```java
+```java title="StatusExample.java" showLineNumbers
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -141,10 +144,11 @@ public class StatusExample {
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .build();
-        
+
         // Create a Status instance
         Status status = Status.getStatus(terminal);
         if (status != null) {
+            // highlight-start
             // Update the status line
             status.update(new AttributedStringBuilder()
                     .style(AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE))
@@ -152,8 +156,9 @@ public class StatusExample {
                     .style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
                     .append("3 tasks running")
                     .toAttributedString());
+            // highlight-end
         }
-        
+
         // Read input normally
         while (true) {
             String line = reader.readLine("prompt> ");
@@ -175,7 +180,7 @@ new Thread(() -> {
         while (true) {
             Thread.sleep(2000);
             taskCount = (taskCount + 1) % 10;
-            
+
             if (status != null) {
                 status.update(new AttributedStringBuilder()
                         .style(AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE))
@@ -225,7 +230,7 @@ Tailtips provide contextual hints or suggestions that appear after the cursor. T
 
 ### Basic Tailtips Usage
 
-```java
+```java title="TailtipExample.java" showLineNumbers
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.DefaultParser;
@@ -238,17 +243,19 @@ public class TailtipExample {
     public static void main(String[] args) throws Exception {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
+                // highlight-next-line
                 .variable(LineReader.TAILTIP_ENABLED, true)
                 .build();
-        
+
         // Read input with tailtips
         while (true) {
-            String line = reader.readLine("prompt> ", null, 
-                    (String) null, null, 
+            // error-start
+            String line = reader.readLine("prompt> ", null,
+                    (String) null, null,
                     s -> {
                         // This function provides the tailtip based on current input
                         if (s.startsWith("help")) {
@@ -264,7 +271,8 @@ public class TailtipExample {
                         }
                         return null;
                     });
-            
+            // error-end
+
             System.out.println("You entered: " + line);
         }
     }
@@ -285,13 +293,13 @@ commandHelp.put("list", "[pattern] - List available resources");
 
 // Read input with command-specific tailtips
 while (true) {
-    String line = reader.readLine("prompt> ", null, 
-            (String) null, null, 
+    String line = reader.readLine("prompt> ", null,
+            (String) null, null,
             s -> {
                 // Extract the command part
                 String[] parts = s.split("\\s+", 2);
                 String cmd = parts[0];
-                
+
                 // Look up help for this command
                 String help = commandHelp.get(cmd);
                 if (help != null) {
@@ -302,7 +310,7 @@ while (true) {
                 }
                 return null;
             });
-    
+
     System.out.println("You entered: " + line);
 }
 ```
@@ -314,19 +322,19 @@ You can provide more sophisticated tailtips based on the current parsing context
 ```java
 // Read input with context-aware tailtips
 while (true) {
-    String line = reader.readLine("prompt> ", null, 
-            (String) null, null, 
+    String line = reader.readLine("prompt> ", null,
+            (String) null, null,
             s -> {
                 try {
                     // Parse the current line
                     ParsedLine pl = parser.parse(s, s.length());
                     String word = pl.word();
                     List<String> words = pl.words();
-                    
+
                     // Command-specific help based on context
                     if (words.size() >= 1) {
                         String cmd = words.get(0);
-                        
+
                         if (cmd.equals("connect")) {
                             if (words.size() == 1) {
                                 // Just the command
@@ -348,7 +356,7 @@ while (true) {
                 }
                 return null;
             });
-    
+
     System.out.println("You entered: " + line);
 }
 ```
@@ -376,16 +384,16 @@ public class InteractiveExample {
     public static void main(String[] args) throws Exception {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .variable(LineReader.TAILTIP_ENABLED, true)
                 .build();
-        
+
         // Set up PrintAboveWriter
         PrintWriter writer = new PrintAboveWriter(terminal, reader::printAbove);
-        
+
         // Set up Status
         Status status = Status.getStatus(terminal);
         if (status != null) {
@@ -394,29 +402,29 @@ public class InteractiveExample {
                     .append("Ready")
                     .toAttributedString());
         }
-        
+
         // Command help for tailtips
         Map<String, String> commandHelp = new HashMap<>();
         commandHelp.put("help", "[command] - Display help for command");
         commandHelp.put("connect", "<host> <port> - Connect to server");
         commandHelp.put("disconnect", "- Disconnect from server");
         commandHelp.put("list", "[pattern] - List available resources");
-        
+
         // Start a background thread for notifications
         new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(3000);
-                    
+
                     // Print notification above
                     AttributedStringBuilder asb = new AttributedStringBuilder();
                     asb.style(AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN))
                        .append("System notification #")
                        .append(String.valueOf(i));
-                    
+
                     writer.println(asb.toAnsi(terminal));
                     writer.flush();
-                    
+
                     // Update status
                     if (status != null) {
                         status.update(new AttributedStringBuilder()
@@ -431,16 +439,16 @@ public class InteractiveExample {
                 e.printStackTrace();
             }
         }).start();
-        
+
         // Main input loop with tailtips
         while (true) {
-            String line = reader.readLine("prompt> ", null, 
-                    (String) null, null, 
+            String line = reader.readLine("prompt> ", null,
+                    (String) null, null,
                     s -> {
                         // Extract the command part
                         String[] parts = s.split("\\s+", 2);
                         String cmd = parts[0];
-                        
+
                         // Look up help for this command
                         String help = commandHelp.get(cmd);
                         if (help != null) {
@@ -451,9 +459,9 @@ public class InteractiveExample {
                         }
                         return null;
                     });
-            
+
             System.out.println("You entered: " + line);
-            
+
             // Update status based on command
             if (status != null) {
                 status.update(new AttributedStringBuilder()
