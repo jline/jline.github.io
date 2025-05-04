@@ -24,6 +24,7 @@ const sidebars: SidebarsConfig = {
       label: 'Advanced Features',
       items: [
         'advanced/syntax-highlighting',
+        'advanced/interactive-features',
         // These will be created later
         // 'advanced/key-bindings',
         // 'advanced/widgets',
