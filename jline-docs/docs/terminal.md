@@ -6,6 +6,8 @@ sidebar_position: 2
 
 JLine provides a powerful abstraction for terminal handling through its `Terminal` interface and implementations. This allows your application to interact with different terminal types in a consistent way.
 
+The Terminal component is the foundation of JLine's architecture, providing the low-level interface to the terminal device. It's used by the [LineReader](./line-reader.md) to provide advanced line editing capabilities.
+
 ## Creating a Terminal
 
 The `TerminalBuilder` class provides a fluent API for creating terminal instances:
@@ -354,3 +356,11 @@ JLine's terminal handling works across different platforms:
 - Dumb terminals (minimal functionality)
 
 This cross-platform compatibility makes JLine ideal for applications that need to run in various environments.
+
+## Related Topics
+
+- [Terminal Providers](./modules/terminal-providers.md): Learn about the different terminal provider implementations
+- [Terminal Attributes](./advanced/terminal-attributes.md): Configure terminal attributes like echo and signals
+- [Terminal Size](./advanced/terminal-size.md): Handle terminal size changes
+- [Screen Clearing](./advanced/screen-clearing.md): Clear the screen and control cursor positioning
+- [Line Reader](./line-reader.md): Build on top of the terminal for line editing capabilities

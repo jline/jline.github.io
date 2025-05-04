@@ -412,6 +412,294 @@ public class ColoredCompleter implements Completer {
 }
 ```
 
+## Additional Completers in org.jline.reader.impl.completer
+
+Besides the completers already covered, JLine provides several other completers in the `org.jline.reader.impl.completer` package:
+
+### NullCompleter
+
+A completer that always returns no completions. Useful as a terminal completer in an `ArgumentCompleter`:
+
+```java title="NullCompleterExample.java"
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.NullCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+
+public class NullCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Create an argument completer with a null completer at the end
+        Completer completer = new ArgumentCompleter(
+                new StringsCompleter("command"),
+                new StringsCompleter("subcommand1", "subcommand2"),
+                NullCompleter.INSTANCE
+        );
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(completer)
+                .build();
+
+        String line = reader.readLine("null> ");
+        System.out.println("You entered: " + line);
+    }
+}
+```
+
+### DirectoriesCompleter
+
+Completes directory names only:
+
+```java title="DirectoriesCompleterExample.java"
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.DirectoriesCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+
+public class DirectoriesCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Create a completer that only completes directory names
+        Completer dirCompleter = new DirectoriesCompleter(Paths.get("."));
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(dirCompleter)
+                .build();
+
+        String line = reader.readLine("dir> ");
+        System.out.println("You selected directory: " + line);
+    }
+}
+```
+
+### FilesCompleter
+
+Completes file names with optional filtering:
+
+```java title="FilesCompleterExample.java"
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.FilesCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.function.Predicate;
+
+public class FilesCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Create a completer that only completes .txt files
+        Predicate<java.nio.file.Path> filter = path ->
+            path.toString().endsWith(".txt") || path.toFile().isDirectory();
+        Completer filesCompleter = new FilesCompleter(Paths.get("."), filter);
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(filesCompleter)
+                .build();
+
+        String line = reader.readLine("file> ");
+        System.out.println("You selected file: " + line);
+    }
+}
+```
+
+### RegexCompleter
+
+Completes based on regular expression patterns:
+
+```java title="RegexCompleterExample.java"
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.RegexCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class RegexCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Define a regex pattern and completers for each group
+        Map<String, Completer> completers = new HashMap<>();
+        completers.put("COMMAND", new org.jline.reader.impl.completer.StringsCompleter("help", "exit", "connect"));
+        completers.put("TARGET", new org.jline.reader.impl.completer.StringsCompleter("server1", "server2", "server3"));
+        completers.put("OPTION", new org.jline.reader.impl.completer.StringsCompleter("-v", "-f", "-h"));
+
+        // Create a regex completer with the pattern
+        Completer regexCompleter = new RegexCompleter("(COMMAND) (TARGET) (OPTION)", completers);
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(regexCompleter)
+                .build();
+
+        String line = reader.readLine("regex> ");
+        System.out.println("You entered: " + line);
+    }
+}
+```
+
+### EnumCompleter
+
+Completes enum values:
+
+```java title="EnumCompleterExample.java"
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.EnumCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+public class EnumCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Create a completer that completes enum values
+        Completer enumCompleter = new EnumCompleter(TimeUnit.class);
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(enumCompleter)
+                .build();
+
+        String line = reader.readLine("timeunit> ");
+        System.out.println("You selected: " + line);
+    }
+}
+```
+
+## Completers in org.jline.builtins.Completers
+
+The `org.jline.builtins.Completers` class provides additional completers that are useful for building command-line applications:
+
+### SystemCompleter
+
+A completer that manages completions for multiple commands:
+
+```java title="SystemCompleterExample.java"
+import org.jline.builtins.Completers.SystemCompleter;
+import org.jline.reader.Completer;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.NullCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class SystemCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Create a system completer
+        SystemCompleter systemCompleter = new SystemCompleter();
+
+        // Add completers for different commands
+        systemCompleter.add("help", new StringsCompleter("commands", "usage", "options"));
+
+        // Add a more complex completer for the "connect" command
+        systemCompleter.add("connect", new ArgumentCompleter(
+                new StringsCompleter("connect"),
+                new StringsCompleter("server1", "server2", "server3"),
+                NullCompleter.INSTANCE
+        ));
+
+        // Compile the completers
+        systemCompleter.compile();
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(systemCompleter)
+                .build();
+
+        String line = reader.readLine("system> ");
+        System.out.println("You entered: " + line);
+    }
+}
+```
+
+### TreeCompleter (from builtins package)
+
+The `org.jline.builtins.Completers.TreeCompleter` provides similar functionality to the `TreeCompleter` in the `impl.completer` package but with a different API:
+
+```java title="BuiltinsTreeCompleterExample.java"
+import org.jline.builtins.Completers.TreeCompleter;
+import org.jline.builtins.Completers.TreeCompleter.Node;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+
+import java.io.IOException;
+
+import static org.jline.builtins.Completers.TreeCompleter.node;
+
+public class BuiltinsTreeCompleterExample {
+    public static void main(String[] args) throws IOException {
+        // highlight-start
+        // Create a tree completer
+        TreeCompleter treeCompleter = new TreeCompleter(
+                node("help",
+                        node("commands"),
+                        node("usage")
+                ),
+                node("connect",
+                        node("server1"),
+                        node("server2")
+                ),
+                node("exit")
+        );
+        // highlight-end
+
+        Terminal terminal = TerminalBuilder.builder().build();
+        LineReader reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(treeCompleter)
+                .build();
+
+        String line = reader.readLine("tree> ");
+        System.out.println("You entered: " + line);
+    }
+}
+```
+
 ## Best Practices
 
 - Provide meaningful completions that help users discover functionality

@@ -27,17 +27,17 @@ This error occurs when JLine cannot initialize a terminal for the current enviro
    **Solution**: Add the appropriate dependencies to your project:
 
    ```xml
-   <!-- For JNA support -->
+   <!-- For JNI support (recommended for Java < 22) -->
    <dependency>
        <groupId>org.jline</groupId>
-       <artifactId>jline-terminal-jna</artifactId>
+       <artifactId>jline-terminal-jni</artifactId>
        <version>3.29.0</version>
    </dependency>
 
-   <!-- For Jansi support -->
+   <!-- For FFM support (recommended for Java 22+) -->
    <dependency>
        <groupId>org.jline</groupId>
-       <artifactId>jline-terminal-jansi</artifactId>
+       <artifactId>jline-terminal-ffm</artifactId>
        <version>3.29.0</version>
    </dependency>
    ```
@@ -49,17 +49,11 @@ This error occurs when JLine cannot initialize a terminal for the current enviro
    **Solution**: Fall back to a dumb terminal:
 
    ```java
-   Terminal terminal;
-   try {
-       terminal = TerminalBuilder.builder()
-               .system(true)
-               .build();
-   } catch (IOException e) {
-       System.err.println("Unable to create a system terminal: " + e.getMessage());
-       terminal = TerminalBuilder.builder()
-               .dumb(true)
-               .build();
-   }
+   // Simply enable dumb mode if you need a fallback
+   Terminal terminal = TerminalBuilder.builder()
+           .system(true)
+           .dumb(true)  // Falls back to dumb if system terminal can't be created
+           .build();
    ```
 
 3. **IDE Console Limitations**
@@ -72,12 +66,12 @@ This error occurs when JLine cannot initialize a terminal for the current enviro
 
    On Windows, you might encounter issues with the console or with Cygwin/MinGW environments.
 
-   **Solution**: Explicitly specify the Jansi provider, which has better Windows support:
+   **Solution**: Explicitly specify the JNI or FFM provider:
 
    ```java
    Terminal terminal = TerminalBuilder.builder()
            .system(true)
-           .provider("jansi")
+           .provider("jni")  // or "ffm" for Java 22+
            .build();
    ```
 
@@ -106,12 +100,12 @@ If ANSI color codes or other escape sequences aren't working properly:
 
    The standard Windows Command Prompt has limited ANSI support.
 
-   **Solution**: Use the Jansi provider, which provides ANSI support on Windows:
+   **Solution**: Use the JNI or FFM provider, which provides ANSI support on Windows:
 
    ```java
    Terminal terminal = TerminalBuilder.builder()
            .system(true)
-           .provider("jansi")
+           .provider("jni")  // or "ffm" for Java 22+
            .build();
    ```
 
@@ -305,12 +299,12 @@ Windows has some specific challenges for terminal applications:
 
    The Windows Console API has limitations compared to Unix terminals.
 
-   **Solution**: Use the Jansi provider for better Windows support:
+   **Solution**: Use the JNI or FFM provider for better Windows support:
 
    ```java
    Terminal terminal = TerminalBuilder.builder()
            .system(true)
-           .provider("jansi")
+           .provider("jni")  // or "ffm" for Java 22+
            .build();
    ```
 
@@ -420,24 +414,32 @@ For more complex issues, try these advanced troubleshooting techniques:
 
 ### Enable Debug Logging
 
-JLine uses SLF4J for logging. Enable debug logging to see what's happening:
+JLine uses Java Util Logging (JUL). Enable debug logging to see what's happening:
 
 ```java
-// Configure SLF4J with a binding like Logback
-// logback.xml
-<configuration>
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
+// Configure Java Util Logging
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.ConsoleHandler;
 
-    <logger name="org.jline" level="DEBUG"/>
+public void configureLogging() {
+    ConsoleHandler handler = new ConsoleHandler();
+    handler.setLevel(Level.FINE);
 
-    <root level="INFO">
-        <appender-ref ref="STDOUT" />
-    </root>
-</configuration>
+    Logger logger = Logger.getLogger("org.jline");
+    logger.setLevel(Level.FINE);
+    logger.addHandler(handler);
+}
+```
+
+Or using a logging.properties file:
+
+```properties
+# logging.properties
+handlers=java.util.logging.ConsoleHandler
+.level=INFO
+java.util.logging.ConsoleHandler.level=FINE
+org.jline.level=FINE
 ```
 
 ### Inspect Terminal Capabilities
@@ -464,26 +466,26 @@ System.out.println("Auto-margin mode supported: " + (enterAm != null && exitAm !
 Try different terminal providers to isolate the issue:
 
 ```java
-// Try with JNA provider
+// Try with JNI provider (recommended for Java < 22)
 try {
-    Terminal jnaTerminal = TerminalBuilder.builder()
-            .provider("jna")
+    Terminal jniTerminal = TerminalBuilder.builder()
+            .provider("jni")
             .build();
-    System.out.println("JNA terminal created successfully: " + jnaTerminal.getType());
-    jnaTerminal.close();
+    System.out.println("JNI terminal created successfully: " + jniTerminal.getType());
+    jniTerminal.close();
 } catch (Exception e) {
-    System.err.println("JNA terminal failed: " + e.getMessage());
+    System.err.println("JNI terminal failed: " + e.getMessage());
 }
 
-// Try with Jansi provider
+// Try with FFM provider (recommended for Java 22+)
 try {
-    Terminal jansiTerminal = TerminalBuilder.builder()
-            .provider("jansi")
+    Terminal ffmTerminal = TerminalBuilder.builder()
+            .provider("ffm")
             .build();
-    System.out.println("Jansi terminal created successfully: " + jansiTerminal.getType());
-    jansiTerminal.close();
+    System.out.println("FFM terminal created successfully: " + ffmTerminal.getType());
+    ffmTerminal.close();
 } catch (Exception e) {
-    System.err.println("Jansi terminal failed: " + e.getMessage());
+    System.err.println("FFM terminal failed: " + e.getMessage());
 }
 
 // Try with dumb terminal
@@ -500,23 +502,30 @@ try {
 
 ### Check for Native Library Issues
 
-JLine uses native libraries through JNA or Jansi. Check for native library issues:
+JLine uses native libraries through JNI or FFM. Check for native library issues:
 
 ```java
 try {
-    // Force loading of JNA
-    Class.forName("com.sun.jna.Native");
-    System.out.println("JNA loaded successfully");
+    // Check if JNI native library is available
+    Terminal jniTerminal = TerminalBuilder.builder()
+            .provider("jni")
+            .build();
+    System.out.println("JNI terminal created successfully");
+    jniTerminal.close();
 } catch (Throwable t) {
-    System.err.println("Error loading JNA: " + t.getMessage());
+    System.err.println("Error with JNI terminal: " + t.getMessage());
 }
 
+// For Java 22+
 try {
-    // Force loading of Jansi
-    Class.forName("org.fusesource.jansi.AnsiConsole");
-    System.out.println("Jansi loaded successfully");
+    // Check if FFM is available
+    Terminal ffmTerminal = TerminalBuilder.builder()
+            .provider("ffm")
+            .build();
+    System.out.println("FFM terminal created successfully");
+    ffmTerminal.close();
 } catch (Throwable t) {
-    System.err.println("Error loading Jansi: " + t.getMessage());
+    System.err.println("Error with FFM terminal: " + t.getMessage());
 }
 ```
 

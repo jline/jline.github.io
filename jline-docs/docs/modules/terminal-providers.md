@@ -73,10 +73,10 @@ Here's a comparison of the different terminal providers:
 JLine uses a discovery mechanism to find and select the appropriate terminal provider. The selection process follows this order:
 
 1. Check for explicitly specified provider via system property or builder method
-2. Try FFM provider if running on Java 22+
-3. Try JNI provider
-4. Try JNA provider if JNA is available
-5. Try Jansi provider if Jansi is available
+2. Try FFM provider if running on Java 22+ (recommended)
+3. Try JNI provider (recommended)
+4. Try JNA provider if JNA is available (deprecated)
+5. Try Jansi provider if Jansi is available (deprecated)
 6. Fall back to Exec provider
 
 ### Provider Selection Methods
@@ -162,6 +162,8 @@ java -Dorg.jline.terminal.provider=exec -jar myapp.jar
 
 The `jline-terminal-jna` module provides terminal implementations using the Java Native Access (JNA) library. JNA allows Java code to access native shared libraries without writing JNI code.
 
+**Note: The JNA provider is deprecated. It is recommended to use JNI or FFM providers instead.**
+
 ### Features
 
 - Dynamic loading of native libraries
@@ -201,6 +203,8 @@ public class JnaTerminalExample {
 ## JLine Terminal-Jansi
 
 The `jline-terminal-jansi` module provides terminal implementations using the Jansi library. Jansi is particularly useful for Windows systems, where it provides ANSI escape sequence support.
+
+**Note: The Jansi provider is deprecated. It is recommended to use JNI or FFM providers instead.**
 
 ### Features
 
@@ -242,7 +246,7 @@ public class JansiTerminalExample {
 
 ## JLine Terminal-FFM
 
-The `jline-terminal-ffm` module provides terminal implementations leveraging the Foreign Function & Memory API introduced in Java 21. This is the most modern approach and is recommended for applications running on Java 21 or later.
+The `jline-terminal-ffm` module provides terminal implementations leveraging the Foreign Function & Memory API introduced in Java 22. This is the most modern approach and is recommended for applications running on Java 22 or later.
 
 ### Features
 
@@ -416,7 +420,7 @@ When working with JLine terminal providers, consider these best practices:
 
 4. **Test on Different Platforms**: Test your application on different platforms to ensure it works with different terminal providers.
 
-5. **Consider Java Version**: Use the FFM provider for Java 22+ applications for the best integration with modern Java.
+5. **Consider Java Version**: Use the FFM provider for Java 22+ applications for the best integration with modern Java. JNI is recommended for Java versions below 22.
 
 6. **Check Terminal Capabilities**: Use the terminal's capabilities to determine what features are available.
 
@@ -437,35 +441,29 @@ This error occurs when JLine cannot find a suitable terminal provider. To resolv
 3. Fall back to a dumb terminal if necessary
 
 ```java
-Terminal terminal;
-try {
-    terminal = TerminalBuilder.builder()
-            .system(true)
-            .build();
-} catch (IOException e) {
-    System.err.println("Unable to create a system terminal: " + e.getMessage());
-    terminal = TerminalBuilder.builder()
-            .dumb(true)
-            .build();
-}
+// Simply enable dumb mode if you need a fallback
+Terminal terminal = TerminalBuilder.builder()
+        .system(true)
+        .dumb(true)  // Falls back to dumb if system terminal can't be created
+        .build();
 ```
 
-#### JNA/Jansi not found
+#### Recommended provider dependencies
 
-If you see errors about JNA or Jansi not being found, make sure you've included the appropriate dependencies:
+It's recommended to use the JNI or FFM providers:
 
 ```xml
-<!-- For JNA support -->
+<!-- For JNI support (recommended for Java < 22) -->
 <dependency>
     <groupId>org.jline</groupId>
-    <artifactId>jline-terminal-jna</artifactId>
+    <artifactId>jline-terminal-jni</artifactId>
     <version>3.29.0</version>
 </dependency>
 
-<!-- For Jansi support -->
+<!-- For FFM support (recommended for Java 22+) -->
 <dependency>
     <groupId>org.jline</groupId>
-    <artifactId>jline-terminal-jansi</artifactId>
+    <artifactId>jline-terminal-ffm</artifactId>
     <version>3.29.0</version>
 </dependency>
 ```
@@ -474,9 +472,10 @@ If you see errors about JNA or Jansi not being found, make sure you've included 
 
 When using JNA or Jansi on newer Java versions, you might see warnings about illegal reflective access. These are generally harmless but can be addressed by:
 
-1. Using the FFM provider on Java 21+
-2. Adding appropriate `--add-opens` JVM arguments
-3. Suppressing the warnings if they don't affect functionality
+1. Using the FFM provider on Java 22+
+2. Using the JNI provider on Java versions below 22
+3. Adding appropriate `--add-opens` JVM arguments if you must use JNA/Jansi
+4. Suppressing the warnings if they don't affect functionality
 
 #### Terminal size issues
 
