@@ -42,21 +42,7 @@ const config: Config = {
           editUrl:
             'https://github.com/jline/jline.github.io/edit/main/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/jline/jline.github.io/edit/main/',
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        // blog section removed
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -80,7 +66,7 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
+        // blog link removed
         {
           href: 'https://github.com/jline/jline3',
           label: 'GitHub',

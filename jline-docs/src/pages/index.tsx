@@ -38,6 +38,21 @@ export default function Home(): ReactNode {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+        <div className="container margin-vert--xl">
+          <div className="row">
+            <div className="col col--8 col--offset-2">
+              <div className="text--center margin-bottom--lg">
+                <Heading as="h2">See It in Action</Heading>
+                <p>Watch JLine's capabilities in this interactive demo:</p>
+              </div>
+              <div className="text--center">
+                <a href="https://asciinema.org/a/683979" target="_blank" rel="noopener noreferrer">
+                  <img src="https://asciinema.org/a/683979.svg" alt="JLine gogo demo" width="100%" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </Layout>
   );
