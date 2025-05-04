@@ -27,32 +27,32 @@ To use the terminal providers, add the appropriate dependencies to your project:
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <!-- Terminal providers (choose one or more) -->
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal-jansi</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal-jna</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal-jni</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal-ffm</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 
@@ -65,7 +65,7 @@ Here's a comparison of the different terminal providers:
 | JNI | Java Native Interface | All | Fast, direct access to native functions | Requires platform-specific compilation |
 | JNA | Java Native Access | All | Dynamic loading of native libraries, no compilation needed | Slightly slower than JNI |
 | Jansi | JNI-based library | All, focus on Windows | Good Windows support, ANSI emulation | Additional dependency |
-| FFM | Foreign Function & Memory API | All | Modern API, part of Java standard | Requires Java 21+ |
+| FFM | Foreign Function & Memory API | All | Modern API, part of Java standard | Requires Java 22+ |
 | Exec | External processes | All | Works without native libraries | Limited functionality, slower |
 
 ## Provider Selection
@@ -73,11 +73,31 @@ Here's a comparison of the different terminal providers:
 JLine uses a discovery mechanism to find and select the appropriate terminal provider. The selection process follows this order:
 
 1. Check for explicitly specified provider via system property or builder method
-2. Try FFM provider if running on Java 21+
+2. Try FFM provider if running on Java 22+
 3. Try JNI provider
 4. Try JNA provider if JNA is available
 5. Try Jansi provider if Jansi is available
 6. Fall back to Exec provider
+
+### Provider Selection Methods
+
+There are two ways to influence provider selection:
+
+1. **Using the `provider()` method**: This explicitly selects a specific provider
+   ```java
+   TerminalBuilder.builder().provider("jansi").build();
+   ```
+
+2. **Using boolean methods**: These methods enable or disable specific providers but don't explicitly select them
+   ```java
+   // Enable Jansi provider (doesn't select it, just makes it available for selection)
+   TerminalBuilder.builder().jansi(true).build();
+
+   // Disable Jansi provider
+   TerminalBuilder.builder().jansi(false).build();
+   ```
+
+To explicitly select a provider, always use the `provider()` method.
 
 You can explicitly specify which provider to use:
 
@@ -94,23 +114,23 @@ public class ProviderSelectionExample {
                 .system(true)
                 .build();
         System.out.println("Auto-selected provider: " + autoTerminal.getClass().getSimpleName());
-        
+
         // highlight-start
         // Explicitly specify the JNA provider
         Terminal jnaTerminal = TerminalBuilder.builder()
                 .system(true)
-                .jna(true)
+                .provider("jna")  // Explicitly select JNA provider
                 .build();
         System.out.println("JNA provider: " + jnaTerminal.getClass().getSimpleName());
-        
+
         // Explicitly specify the Jansi provider
         Terminal jansiTerminal = TerminalBuilder.builder()
                 .system(true)
-                .jansi(true)
+                .provider("jansi")  // Explicitly select Jansi provider
                 .build();
         System.out.println("Jansi provider: " + jansiTerminal.getClass().getSimpleName());
         // highlight-end
-        
+
         // Close the terminals
         autoTerminal.close();
         jnaTerminal.close();
@@ -163,16 +183,16 @@ public class JnaTerminalExample {
         // Create a JNA-based terminal
         Terminal terminal = TerminalBuilder.builder()
                 .system(true)
-                .jna(true)  // Explicitly request JNA
+                .provider("jna")  // Explicitly select JNA provider
                 .build();
         // highlight-end
-        
+
         System.out.println("Terminal type: " + terminal.getType());
         System.out.println("Terminal size: " + terminal.getWidth() + "x" + terminal.getHeight());
-        
+
         terminal.writer().println("Hello from JNA terminal!");
         terminal.writer().flush();
-        
+
         terminal.close();
     }
 }
@@ -203,18 +223,18 @@ public class JansiTerminalExample {
         // Create a Jansi-based terminal
         Terminal terminal = TerminalBuilder.builder()
                 .system(true)
-                .jansi(true)  // Explicitly request Jansi
+                .provider("jansi")  // Explicitly select Jansi provider
                 .build();
         // highlight-end
-        
+
         System.out.println("Terminal type: " + terminal.getType());
-        
+
         // Use ANSI escape sequences for colors
         terminal.writer().println("\u001B[1;31mRed text\u001B[0m");
         terminal.writer().println("\u001B[1;32mGreen text\u001B[0m");
         terminal.writer().println("\u001B[1;34mBlue text\u001B[0m");
         terminal.writer().flush();
-        
+
         terminal.close();
     }
 }
@@ -242,18 +262,18 @@ import java.io.IOException;
 public class FfmTerminalExample {
     public static void main(String[] args) throws IOException {
         // highlight-start
-        // Create an FFM-based terminal (requires Java 21+)
+        // Create an FFM-based terminal (requires Java 22+)
         Terminal terminal = TerminalBuilder.builder()
                 .system(true)
-                .ffm(true)  // Explicitly request FFM
+                .provider("ffm")  // Explicitly select FFM provider
                 .build();
         // highlight-end
-        
+
         System.out.println("Terminal type: " + terminal.getType());
-        
+
         terminal.writer().println("Hello from FFM terminal!");
         terminal.writer().flush();
-        
+
         terminal.close();
     }
 }
@@ -283,15 +303,15 @@ public class JniTerminalExample {
         // Create a JNI-based terminal
         Terminal terminal = TerminalBuilder.builder()
                 .system(true)
-                .jni(true)  // Explicitly request JNI
+                .provider("jni")  // Explicitly select JNI provider
                 .build();
         // highlight-end
-        
+
         System.out.println("Terminal type: " + terminal.getType());
-        
+
         terminal.writer().println("Hello from JNI terminal!");
         terminal.writer().flush();
-        
+
         terminal.close();
     }
 }
@@ -327,15 +347,15 @@ public class ExecTerminalExample {
         // Create an Exec-based terminal
         Terminal terminal = TerminalBuilder.builder()
                 .system(true)
-                .exec(true)  // Explicitly request Exec
+                .provider("exec")  // Explicitly select Exec provider
                 .build();
         // highlight-end
-        
+
         System.out.println("Terminal type: " + terminal.getType());
-        
+
         terminal.writer().println("Hello from Exec terminal!");
         terminal.writer().flush();
-        
+
         terminal.close();
     }
 }
@@ -373,12 +393,12 @@ public class DumbTerminalExample {
                 .dumb(true)  // Request a dumb terminal
                 .build();
         // highlight-end
-        
+
         System.out.println("Terminal type: " + terminal.getType());
-        
+
         terminal.writer().println("Hello from dumb terminal!");
         terminal.writer().flush();
-        
+
         terminal.close();
     }
 }
@@ -396,7 +416,7 @@ When working with JLine terminal providers, consider these best practices:
 
 4. **Test on Different Platforms**: Test your application on different platforms to ensure it works with different terminal providers.
 
-5. **Consider Java Version**: Use the FFM provider for Java 21+ applications for the best integration with modern Java.
+5. **Consider Java Version**: Use the FFM provider for Java 22+ applications for the best integration with modern Java.
 
 6. **Check Terminal Capabilities**: Use the terminal's capabilities to determine what features are available.
 
@@ -439,14 +459,14 @@ If you see errors about JNA or Jansi not being found, make sure you've included 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal-jna</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <!-- For Jansi support -->
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-terminal-jansi</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 

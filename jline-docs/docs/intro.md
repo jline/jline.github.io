@@ -30,7 +30,7 @@ Add JLine to your project using Maven:
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 
@@ -39,7 +39,7 @@ Add JLine to your project using Maven:
 Or if you're using Gradle:
 
 ```groovy
-implementation 'org.jline:jline:3.25.0'
+implementation 'org.jline:jline:3.29.0'
 ```
 
 ## Basic Usage

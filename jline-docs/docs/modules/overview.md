@@ -82,32 +82,32 @@ To use these modules in your Maven project, add the appropriate dependencies:
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <!-- Or individual modules -->
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-builtins</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-style</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-console</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-console-ui</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 

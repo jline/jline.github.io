@@ -14,7 +14,7 @@ To use the console module, add the following dependency to your project:
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-console</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 
@@ -45,17 +45,17 @@ public class CommandFrameworkExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         // highlight-start
         // Create a command registry
         CommandRegistry registry = new DefaultCommandRegistry();
-        
+
         // Register commands
         registry.registerCommand("echo", args -> {
             terminal.writer().println(String.join(" ", args));
             return 0;
         });
-        
+
         registry.registerCommand("add", args -> {
             try {
                 int sum = Arrays.stream(args)
@@ -69,14 +69,14 @@ public class CommandFrameworkExample {
             }
         });
         // highlight-end
-        
+
         // Create a line reader
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .completer(registry.completer())
                 .build();
-        
+
         // Main command loop
         PrintWriter writer = terminal.writer();
         while (true) {
@@ -84,7 +84,7 @@ public class CommandFrameworkExample {
             if (line.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
+
             try {
                 // Parse and execute the command
                 CommandInput input = new CommandInput(line, parser.parse(line, 0).words());
@@ -125,7 +125,7 @@ public class CustomCommandExample {
         public GreetCommand() {
             super("greet", "Greet a person", "greet [name]");
         }
-        
+
         @Override
         public Object execute(CommandInput input) {
             List<String> args = input.args();
@@ -133,28 +133,28 @@ public class CustomCommandExample {
             return "Hello, " + name + "!";
         }
     }
-    
+
     static class CalculateCommand extends AbstractCommand {
         public CalculateCommand() {
             super("calc", "Perform calculations", "calc <operation> <num1> <num2>");
         }
-        
+
         @Override
         public Object execute(CommandInput input) {
             List<String> args = input.args();
             if (args.size() < 3) {
                 throw new IllegalArgumentException("Not enough arguments");
             }
-            
+
             String operation = args.get(0);
             double num1 = Double.parseDouble(args.get(1));
             double num2 = Double.parseDouble(args.get(2));
-            
+
             switch (operation) {
                 case "add": return num1 + num2;
                 case "subtract": return num1 - num2;
                 case "multiply": return num1 * num2;
-                case "divide": 
+                case "divide":
                     if (num2 == 0) {
                         throw new IllegalArgumentException("Cannot divide by zero");
                     }
@@ -165,25 +165,25 @@ public class CustomCommandExample {
         }
     }
     // highlight-end
-    
+
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         // Create a command registry
         CommandRegistry registry = new DefaultCommandRegistry();
-        
+
         // Register custom commands
         registry.registerCommand(new GreetCommand());
         registry.registerCommand(new CalculateCommand());
-        
+
         // Create a line reader
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .completer(registry.completer())
                 .build();
-        
+
         // Main command loop
         PrintWriter writer = terminal.writer();
         while (true) {
@@ -191,7 +191,7 @@ public class CustomCommandExample {
             if (line.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
+
             try {
                 // Parse and execute the command
                 CommandInput input = new CommandInput(line, parser.parse(line, 0).words());
@@ -233,52 +233,52 @@ public class CommandCompletionExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         // Create a command registry
         CommandRegistry registry = new DefaultCommandRegistry();
-        
+
         // Register commands
         registry.registerCommand("help", args -> {
             terminal.writer().println("Available commands: help, echo, exit");
             return 0;
         });
-        
+
         registry.registerCommand("echo", args -> {
             terminal.writer().println(String.join(" ", args));
             return 0;
         });
-        
+
         // highlight-start
         // Create completers for commands
         Completer helpCompleter = new ArgumentCompleter(
                 new StringsCompleter("help"),
                 NullCompleter.INSTANCE
         );
-        
+
         Completer echoCompleter = new ArgumentCompleter(
                 new StringsCompleter("echo"),
                 new StringsCompleter("hello", "world", "test")
         );
-        
+
         // Register completers
         registry.registerCompleter("help", helpCompleter);
         registry.registerCompleter("echo", echoCompleter);
         // highlight-end
-        
+
         // Create a line reader with the registry's completer
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .completer(registry.completer())
                 .build();
-        
+
         // Main command loop
         while (true) {
             String line = reader.readLine("completion> ");
             if (line.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
+
             try {
                 registry.execute(line);
             } catch (Exception e) {
@@ -317,7 +317,7 @@ public class CommandGroupsExample {
         public ListCommand() {
             super("file:list", "List files", "file:list [directory]");
         }
-        
+
         @Override
         public Object execute(CommandInput input) {
             List<String> args = input.args();
@@ -325,12 +325,12 @@ public class CommandGroupsExample {
             return "Listing files in " + dir;
         }
     }
-    
+
     static class CatCommand extends AbstractCommand {
         public CatCommand() {
             super("file:cat", "Display file contents", "file:cat <file>");
         }
-        
+
         @Override
         public Object execute(CommandInput input) {
             List<String> args = input.args();
@@ -340,13 +340,13 @@ public class CommandGroupsExample {
             return "Contents of " + args.get(0);
         }
     }
-    
+
     // Network commands
     static class PingCommand extends AbstractCommand {
         public PingCommand() {
             super("net:ping", "Ping a host", "net:ping <host>");
         }
-        
+
         @Override
         public Object execute(CommandInput input) {
             List<String> args = input.args();
@@ -356,12 +356,12 @@ public class CommandGroupsExample {
             return "Pinging " + args.get(0);
         }
     }
-    
+
     static class HttpCommand extends AbstractCommand {
         public HttpCommand() {
             super("net:http", "Make HTTP request", "net:http <url>");
         }
-        
+
         @Override
         public Object execute(CommandInput input) {
             List<String> args = input.args();
@@ -372,27 +372,27 @@ public class CommandGroupsExample {
         }
     }
     // highlight-end
-    
+
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         // Create a command registry
         CommandRegistry registry = new DefaultCommandRegistry();
-        
+
         // Register commands by group
         registry.registerCommand(new ListCommand());
         registry.registerCommand(new CatCommand());
         registry.registerCommand(new PingCommand());
         registry.registerCommand(new HttpCommand());
-        
+
         // Create a line reader
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .completer(registry.completer())
                 .build();
-        
+
         // Main command loop
         PrintWriter writer = terminal.writer();
         while (true) {
@@ -400,7 +400,7 @@ public class CommandGroupsExample {
             if (line.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
+
             try {
                 // Parse and execute the command
                 CommandInput input = new CommandInput(line, parser.parse(line, 0).words());
@@ -444,16 +444,16 @@ public class ScriptExecutionExample {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
         PrintWriter writer = terminal.writer();
-        
+
         // Create a command registry
         CommandRegistry registry = new DefaultCommandRegistry();
-        
+
         // Register basic commands
         registry.registerCommand("echo", args -> {
             writer.println(String.join(" ", args));
             return 0;
         });
-        
+
         registry.registerCommand("add", args -> {
             int sum = 0;
             for (String arg : args) {
@@ -462,7 +462,7 @@ public class ScriptExecutionExample {
             writer.println("Sum: " + sum);
             return sum;
         });
-        
+
         // highlight-start
         // Create a script engine
         ScriptEngine engine = new ScriptEngine() {
@@ -470,13 +470,13 @@ public class ScriptExecutionExample {
             public Object execute(CommandRegistry commandRegistry, String script) {
                 String[] lines = script.split("\n");
                 Object result = null;
-                
+
                 for (String line : lines) {
                     line = line.trim();
                     if (line.isEmpty() || line.startsWith("#")) {
                         continue; // Skip empty lines and comments
                     }
-                    
+
                     try {
                         result = commandRegistry.execute(line);
                     } catch (Exception e) {
@@ -485,40 +485,40 @@ public class ScriptExecutionExample {
                         return 1; // Error code
                     }
                 }
-                
+
                 return result;
             }
-            
+
             @Override
             public boolean hasVariable(String name) {
                 return false;
             }
-            
+
             @Override
             public Object getVariable(String name) {
                 return null;
             }
-            
+
             @Override
             public void putVariable(String name, Object value) {
                 // Not implemented
             }
         };
         // highlight-end
-        
+
         // Register script execution command
         registry.registerCommand("source", args -> {
             if (args.isEmpty()) {
                 writer.println("Usage: source <script-file>");
                 return 1;
             }
-            
+
             Path scriptPath = Paths.get(args.get(0));
             if (!Files.exists(scriptPath)) {
                 writer.println("Script file not found: " + scriptPath);
                 return 1;
             }
-            
+
             try {
                 List<String> scriptLines = Files.readAllLines(scriptPath);
                 String script = String.join("\n", scriptLines);
@@ -528,21 +528,21 @@ public class ScriptExecutionExample {
                 return 1;
             }
         });
-        
+
         // Create a line reader
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .completer(registry.completer())
                 .build();
-        
+
         // Main command loop
         while (true) {
             String line = reader.readLine("script> ");
             if (line.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
+
             try {
                 registry.execute(line);
             } catch (Exception e) {
@@ -579,32 +579,32 @@ public class VariableSupportExample {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
         PrintWriter writer = terminal.writer();
-        
+
         // highlight-start
         // Create a variable store
         Map<String, Object> variables = new HashMap<>();
-        
+
         // Pattern to match variable references
         Pattern varPattern = Pattern.compile("\\$([a-zA-Z0-9_]+)");
         // highlight-end
-        
+
         // Create a command registry
         CommandRegistry registry = new DefaultCommandRegistry();
-        
+
         // Register variable commands
         registry.registerCommand("set", args -> {
             if (args.size() < 2) {
                 writer.println("Usage: set <name> <value>");
                 return 1;
             }
-            
+
             String name = args.get(0);
             String value = args.get(1);
             variables.put(name, value);
             writer.println(name + " = " + value);
             return 0;
         });
-        
+
         registry.registerCommand("get", args -> {
             if (args.isEmpty()) {
                 // List all variables
@@ -621,45 +621,45 @@ public class VariableSupportExample {
             }
             return 0;
         });
-        
+
         registry.registerCommand("echo", args -> {
             StringBuilder result = new StringBuilder();
-            
+
             for (String arg : args) {
                 // Replace variable references
                 Matcher matcher = varPattern.matcher(arg);
                 StringBuffer sb = new StringBuffer();
-                
+
                 while (matcher.find()) {
                     String varName = matcher.group(1);
-                    String varValue = variables.containsKey(varName) 
-                            ? variables.get(varName).toString() 
+                    String varValue = variables.containsKey(varName)
+                            ? variables.get(varName).toString()
                             : "$" + varName;
                     matcher.appendReplacement(sb, Matcher.quoteReplacement(varValue));
                 }
                 matcher.appendTail(sb);
-                
+
                 result.append(sb).append(" ");
             }
-            
+
             writer.println(result.toString().trim());
             return 0;
         });
-        
+
         // Create a line reader
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .completer(registry.completer())
                 .build();
-        
+
         // Main command loop
         while (true) {
             String line = reader.readLine("vars> ");
             if (line.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
+
             try {
                 registry.execute(line);
             } catch (Exception e) {

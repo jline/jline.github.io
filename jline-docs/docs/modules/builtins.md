@@ -14,7 +14,7 @@ To use the builtins module, add the following dependency to your project:
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-builtins</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 
@@ -43,7 +43,7 @@ public class FileOperationsExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         PrintWriter writer = terminal.writer();
-        
+
         // Create a line reader with file operations completers
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
@@ -51,12 +51,12 @@ public class FileOperationsExample {
                         new StringsCompleter("ls", "cat", "less"),
                         new FilesCompleter(Paths.get("."))))
                 .build();
-        
+
         // Main command loop
         while (true) {
             String line = reader.readLine("builtin> ");
             String[] arguments = line.split("\\s+");
-            
+
             try {
                 if (arguments.length > 0) {
                     switch (arguments[0]) {
@@ -67,7 +67,7 @@ public class FileOperationsExample {
                             Commands.ls(terminal, writer, path, false, false, false, false);
                             break;
                         // highlight-end
-                            
+
                         case "cat":
                             // Display file contents
                             if (arguments.length > 1) {
@@ -76,7 +76,7 @@ public class FileOperationsExample {
                                 writer.println("Usage: cat <file>");
                             }
                             break;
-                            
+
                         case "less":
                             // Display file contents with paging
                             if (arguments.length > 1) {
@@ -85,10 +85,10 @@ public class FileOperationsExample {
                                 writer.println("Usage: less <file>");
                             }
                             break;
-                            
+
                         case "exit":
                             return;
-                            
+
                         default:
                             writer.println("Unknown command: " + arguments[0]);
                     }
@@ -126,7 +126,7 @@ public class TableFormattingExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         PrintWriter writer = terminal.writer();
-        
+
         // highlight-start
         // Define table columns
         List<Column> columns = Arrays.asList(
@@ -136,25 +136,25 @@ public class TableFormattingExample {
                 new Column("Salary", ColumnType.Number)
         );
         // highlight-end
-        
+
         // Create table data
         List<List<String>> data = new ArrayList<>();
         data.add(Arrays.asList("1", "John Doe", "Developer", "75000"));
         data.add(Arrays.asList("2", "Jane Smith", "Manager", "85000"));
         data.add(Arrays.asList("3", "Bob Johnson", "Designer", "65000"));
-        
+
         // Print the table
         Tables.TableBuilder tableBuilder = new Tables.TableBuilder(columns);
         tableBuilder.addAll(data);
-        
+
         // Format and display the table
         Tables.Table table = tableBuilder.build();
         String result = table.toStringWithColumns(
-                terminal.getWidth(), 
+                terminal.getWidth(),
                 true, // display borders
                 true  // display header
         );
-        
+
         writer.println(result);
         writer.flush();
     }
@@ -183,12 +183,12 @@ public class WidgetsExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .parser(parser)
                 .build();
-        
+
         // highlight-start
         // Create command descriptions for TailTip widget
         Map<String, List<String>> commandDescriptions = new HashMap<>();
@@ -196,12 +196,12 @@ public class WidgetsExample {
         commandDescriptions.put("exit", Arrays.asList("Exit the application"));
         commandDescriptions.put("ls", Arrays.asList("[path]", "List directory contents"));
         commandDescriptions.put("cat", Arrays.asList("<file>", "Display file contents"));
-        
+
         // Create and install the TailTip widget
         TailTipWidgets widgets = new TailTipWidgets(reader, commandDescriptions, 5, TipType.COMPLETER);
         widgets.enable();
         // highlight-end
-        
+
         // Main command loop
         while (true) {
             String line = reader.readLine("widgets> ");
@@ -240,33 +240,33 @@ public class SystemRegistryExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         DefaultParser parser = new DefaultParser();
-        
+
         // highlight-start
         // Create the registry
         SystemRegistry registry = new SystemRegistryImpl(parser, terminal, () -> Paths.get("."), null);
-        
+
         // Create builtins
         Builtins builtins = new Builtins(registry::commandRegistry, () -> Paths.get("."), null, null);
         // highlight-end
-        
+
         // Register commands
         registry.register("help", builtins::help);
         registry.register("ls", builtins::ls);
         registry.register("cat", builtins::cat);
         registry.register("less", builtins::less);
-        
+
         // Set up completers
         SystemCompleter completer = builtins.compileCompleters();
-        
+
         // Create line reader
         LineReader reader = LineReaderBuilder.builder()
                 .terminal(terminal)
                 .completer(completer)
                 .parser(parser)
                 .build();
-        
+
         registry.setLineReader(reader);
-        
+
         // Main command loop
         PrintWriter writer = terminal.writer();
         while (true) {
@@ -275,7 +275,7 @@ public class SystemRegistryExample {
                 if (line.trim().equalsIgnoreCase("exit")) {
                     break;
                 }
-                
+
                 // Execute the command
                 registry.execute(line);
             } catch (HelpException e) {
@@ -306,14 +306,14 @@ import java.nio.file.Paths;
 public class NanoEditorExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
-        
+
         // highlight-start
         // Configure Nano
         NanoConfig config = new NanoConfig.Builder()
                 .tabSize(4)
                 .tabToSpaces(true)
                 .build();
-        
+
         // Launch Nano editor
         Nano nano = new Nano(terminal, config);
         nano.open(Paths.get("example.txt"));

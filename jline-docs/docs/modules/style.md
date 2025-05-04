@@ -14,7 +14,7 @@ To use the style module, add the following dependency to your project:
 <dependency>
     <groupId>org.jline</groupId>
     <artifactId>jline-style</artifactId>
-    <version>3.25.0</version>
+    <version>3.29.0</version>
 </dependency>
 ```
 
@@ -37,15 +37,15 @@ public class BasicStylingExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         PrintWriter writer = terminal.writer();
-        
+
         // highlight-start
         // Create a styler
         Styler styler = Styler.defaultStyler();
-        
+
         // Style text using style expressions
         AttributedString styledText = styler.style("This is @{bold,fg:red}red bold text@{} and this is @{italic,fg:blue}blue italic text@{}.");
         // highlight-end
-        
+
         // Print the styled text
         styledText.println(terminal);
         writer.flush();
@@ -74,28 +74,28 @@ public class StyleExpressionExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         Styler styler = Styler.defaultStyler();
-        
+
         // highlight-start
         // Basic foreground and background colors
         styler.style("@{fg:red}Red text@{}").println(terminal);
         styler.style("@{bg:blue}Blue background@{}").println(terminal);
-        
+
         // Text attributes
         styler.style("@{bold}Bold text@{}").println(terminal);
         styler.style("@{italic}Italic text@{}").println(terminal);
         styler.style("@{underline}Underlined text@{}").println(terminal);
         styler.style("@{blink}Blinking text@{}").println(terminal);
         styler.style("@{inverse}Inverse text@{}").println(terminal);
-        
+
         // Combining attributes
         styler.style("@{bold,fg:green,bg:black}Bold green text on black background@{}").println(terminal);
         // highlight-end
-        
+
         // Named styles (defined in the styler)
         styler.style("@{error}Error message@{}").println(terminal);
         styler.style("@{warning}Warning message@{}").println(terminal);
         styler.style("@{info}Info message@{}").println(terminal);
-        
+
         terminal.flush();
     }
 }
@@ -120,7 +120,7 @@ import java.util.Map;
 public class StyleResolverExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
-        
+
         // highlight-start
         // Create a map of named styles
         Map<String, AttributedStyle> styles = new HashMap<>();
@@ -128,28 +128,28 @@ public class StyleResolverExample {
         styles.put("warning", AttributedStyle.DEFAULT.foreground(AttributedStyle.YELLOW));
         styles.put("info", AttributedStyle.DEFAULT.foreground(AttributedStyle.BLUE));
         styles.put("success", AttributedStyle.DEFAULT.foreground(AttributedStyle.GREEN));
-        
+
         // Create a style resolver with the named styles
         StyleResolver resolver = new StyleResolver(styles);
         // highlight-end
-        
+
         // Resolve style expressions
         AttributedString errorMessage = resolver.resolve("@{error}Something went wrong!@{}");
         AttributedString warningMessage = resolver.resolve("@{warning}Be careful!@{}");
         AttributedString infoMessage = resolver.resolve("@{info}Just so you know...@{}");
         AttributedString successMessage = resolver.resolve("@{success}Operation completed successfully.@{}");
-        
+
         // Print the styled messages
         errorMessage.println(terminal);
         warningMessage.println(terminal);
         infoMessage.println(terminal);
         successMessage.println(terminal);
-        
+
         // Combine named styles with inline styles
         AttributedString combinedStyle = resolver.resolve(
                 "@{error}Error:@{} @{bold,fg:white}Cannot open file @{italic}'example.txt'@{}");
         combinedStyle.println(terminal);
-        
+
         terminal.flush();
     }
 }
@@ -174,31 +174,31 @@ import java.util.Properties;
 public class StyleConfigurationExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
-        
+
         // highlight-start
         // Define styles in a properties format
-        String styleConfig = 
+        String styleConfig =
                 "error = fg:red,bold\n" +
                 "warning = fg:yellow\n" +
                 "info = fg:blue\n" +
                 "success = fg:green\n" +
                 "header = fg:cyan,underline\n" +
                 "highlight = bg:yellow,fg:black";
-        
+
         // Load the styles
         Properties props = new Properties();
         props.load(new StringReader(styleConfig));
-        
+
         // Create a styler with the loaded styles
         Styler styler = Styler.create(props);
         // highlight-end
-        
+
         // Use the configured styles
         styler.style("@{header}System Information@{}").println(terminal);
         styler.style("@{info}OS: @{highlight}Linux@{}").println(terminal);
         styler.style("@{info}User: @{highlight}admin@{}").println(terminal);
         styler.style("@{success}All systems operational@{}").println(terminal);
-        
+
         terminal.flush();
     }
 }
@@ -226,23 +226,23 @@ import java.util.Properties;
 public class StyledTableExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
-        
+
         // Define styles
         Properties styleProps = new Properties();
         styleProps.setProperty("header", "fg:cyan,bold");
         styleProps.setProperty("error", "fg:red");
         styleProps.setProperty("warning", "fg:yellow");
         styleProps.setProperty("ok", "fg:green");
-        
+
         Styler styler = Styler.create(styleProps);
-        
+
         // Define table columns
         List<Column> columns = Arrays.asList(
                 new Column("Service", ColumnType.String),
                 new Column("Status", ColumnType.String),
                 new Column("Message", ColumnType.String)
         );
-        
+
         // Create table data with styled content
         List<List<AttributedString>> data = new ArrayList<>();
         data.add(Arrays.asList(
@@ -260,18 +260,18 @@ public class StyledTableExample {
                 styler.style("@{error}Down@{}"),
                 new AttributedString("Connection refused")
         ));
-        
+
         // Build and display the table
         Tables.TableBuilder tableBuilder = new Tables.TableBuilder(columns);
         tableBuilder.addAllAttributedString(data);
-        
+
         Tables.Table table = tableBuilder.build();
         AttributedString tableString = table.toAttributedString(
-                terminal.getWidth(), 
+                terminal.getWidth(),
                 true,  // display borders
                 true   // display header
         );
-        
+
         tableString.println(terminal);
         terminal.flush();
     }
@@ -295,35 +295,35 @@ public class StyledProgressExample {
     public static void main(String[] args) throws IOException {
         Terminal terminal = TerminalBuilder.builder().build();
         Styler styler = Styler.defaultStyler();
-        
+
         // Clear screen
         terminal.puts(Capability.clear_screen);
-        
+
         // highlight-start
         // Create a styled progress bar
         for (int i = 0; i <= 100; i++) {
             // Calculate progress bar width
             int width = 50;
             int completed = width * i / 100;
-            
+
             // Build the progress bar
             AttributedStringBuilder builder = new AttributedStringBuilder();
             builder.append("\r");
             builder.append(styler.style("@{bold}Progress: @{fg:green}["));
-            
+
             // Completed portion
             builder.append(styler.style("@{fg:green}" + "=".repeat(completed)));
-            
+
             // Remaining portion
             builder.append(styler.style("@{fg:black,bg:white}" + " ".repeat(width - completed)));
-            
+
             builder.append(styler.style("@{fg:green}]@{} "));
             builder.append(styler.style("@{bold}" + i + "%"));
-            
+
             // Print the progress bar
             terminal.writer().print(builder.toAnsi(terminal));
             terminal.flush();
-            
+
             // Simulate work
             try {
                 Thread.sleep(50);
@@ -332,7 +332,7 @@ public class StyledProgressExample {
             }
         }
         // highlight-end
-        
+
         terminal.writer().println();
         terminal.writer().println(styler.style("@{bold,fg:green}Complete!@{}"));
         terminal.flush();
