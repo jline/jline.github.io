@@ -82,6 +82,7 @@ public class JLineExample {
             }
 
             terminal.writer().println("Goodbye!");
+            terminal.flush();
             terminal.close();
 
         } catch (IOException e) {
